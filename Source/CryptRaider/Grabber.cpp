@@ -34,6 +34,15 @@ void UGrabber::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompone
 	// Call the parent class's TickComponent to ensure any inherited behavior runs
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
+	
+}
+void UGrabber::Release()
+{
+	UE_LOG(LogTemp, Display, TEXT("Released grabber"));
+}
+void UGrabber::Grab()
+{
+	
 	// Get the current location of this component (the start point for the debug line)
 	FVector Start = GetComponentLocation();
 	// Calculate the end point by moving forward from the start by MaxGrabDistance units
@@ -41,12 +50,22 @@ void UGrabber::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompone
 	// Draw a red debug line in the world from Start to End to visualize the grab range
 	DrawDebugLine(GetWorld(), Start, End, FColor::Red);
 	
-	float Damage = 0;
-	float& DamageRef = Damage;
-	DamageRef = 5; 
-	UE_LOG(LogTemp, Display, TEXT("Damage ref: %f and Damage %f"), DamageRef, Damage); // Log the damage value to the console
-	
-	
+	FCollisionShape Sphere = FCollisionShape::MakeSphere(GrabRadius);
+	FHitResult HitResult;
+	bool HasHit = GetWorld()->SweepSingleByChannel(
+		HitResult, 
+		Start, End, 
+		FQuat::Identity, 
+		ECC_GameTraceChannel2, 
+		Sphere
+	);
+	if(HasHit)
+	{
+		AActor* HitActor = HitResult.GetActor();
+		UE_LOG(LogTemp, Display, TEXT("Hit actor: %s"), *HitActor->GetActorNameOrLabel());
+	}
+	else
+	{
+		UE_LOG(LogTemp, Display, TEXT("No actor hit within grab range."));
+	}
 }
-
-
