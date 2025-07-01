@@ -61,6 +61,7 @@ void UGrabber::Grab()
 		// Grabbing code bellow
 		UPrimitiveComponent* HitComponent = HitResult.GetComponent();
 		HitComponent->WakeAllRigidBodies();
+		HitResult.GetActor()->Tags.Add(FName("Grabbed")); // Add a tag to the actor to indicate it has been grabbed
 		PhysicsHandle->GrabComponentAtLocationWithRotation(
 			HitComponent,
 			NAME_None,
@@ -79,7 +80,9 @@ void UGrabber::Release()
 	}
 	if(PhysicsHandle->GetGrabbedComponent() != nullptr)
 	{
-		PhysicsHandle->GetGrabbedComponent()->WakeAllRigidBodies();// Wake the grabbed component to ensure it responds to physics immediately
+		//PhysicsHandle->GetGrabbedComponent()->WakeAllRigidBodies();// Wake the grabbed component to ensure it responds to physics immediately
+		AActor* GrabbedActor = PhysicsHandle->GetGrabbedComponent()->GetOwner();
+		GrabbedActor->Tags.Remove("Grabbed");
 		PhysicsHandle->ReleaseComponent(); // Release the grabbed component
 	}
 }
