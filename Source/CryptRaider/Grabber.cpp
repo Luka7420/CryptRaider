@@ -32,12 +32,8 @@ void UGrabber::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompone
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
 	UPhysicsHandleComponent* PhysicsHandle = GetPhysicsHandle();
-	if(PhysicsHandle == nullptr)
-	{
-		return;
-	}
 	
-	if(PhysicsHandle->GetGrabbedComponent() != nullptr)
+	if(PhysicsHandle && PhysicsHandle->GetGrabbedComponent())
 	{
 		FVector TargetLocation = GetComponentLocation() + GetForwardVector() * HoldDistance; // Calculate the target location for the grabbed component, which is the current location of this component plus an offset in the forward direction
 		PhysicsHandle->SetTargetLocationAndRotation(TargetLocation, GetComponentRotation()); // Set the target location and rotation of the physics handle to the calculated target location and the current rotation of this component
@@ -60,8 +56,11 @@ void UGrabber::Grab()
 	{
 		// Grabbing code bellow
 		UPrimitiveComponent* HitComponent = HitResult.GetComponent();
+		HitComponent->SetSimulatePhysics(true); // Enable physics simulation on the hit component to allow it to be grabbed
 		HitComponent->WakeAllRigidBodies();
-		HitResult.GetActor()->Tags.Add(FName("Grabbed")); // Add a tag to the actor to indicate it has been grabbed
+		AActor* HitActor = HitResult.GetActor();
+		HitActor->Tags.Add(FName("Grabbed")); // Add a tag to the actor to indicate it has been grabbed
+		HitActor->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform); // Detach the actor from its parent to allow it to be moved freely
 		PhysicsHandle->GrabComponentAtLocationWithRotation(
 			HitComponent,
 			NAME_None,
@@ -74,11 +73,8 @@ void UGrabber::Grab()
 void UGrabber::Release()
 {
 	UPhysicsHandleComponent* PhysicsHandle = GetPhysicsHandle();
-	if(PhysicsHandle == nullptr)
-	{
-		return;
-	}
-	if(PhysicsHandle->GetGrabbedComponent() != nullptr)
+
+	if(PhysicsHandle && PhysicsHandle->GetGrabbedComponent())
 	{
 		//PhysicsHandle->GetGrabbedComponent()->WakeAllRigidBodies();// Wake the grabbed component to ensure it responds to physics immediately
 		AActor* GrabbedActor = PhysicsHandle->GetGrabbedComponent()->GetOwner();
