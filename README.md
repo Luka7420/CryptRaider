@@ -1,4 +1,4 @@
-🔧 UE5 Modular Puzzle Level – Built with C++
+
 This is a modular level built in Unreal Engine 5 using C++. It features dynamic Lumen lighting, interactable pressure plates, and moving platforms. Along the way, I explored pointers, references, components, arrays, loops, line tracing, and how to bridge C++ with Blueprints.
 
 It was a great hands-on learning experience and a solid foundation for future gameplay systems. Feel free to explore or build on top of it!
